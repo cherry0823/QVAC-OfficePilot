@@ -54,3 +54,7 @@ The application is designed for local inference through QVAC. It does not send e
 ## License
 
 Apache License 2.0.
+
+## Project Status
+
+OfficePilot is a working local-first employee work report assistant powered by Tether QVAC.
