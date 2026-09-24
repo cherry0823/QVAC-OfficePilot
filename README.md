@@ -58,3 +58,7 @@ Apache License 2.0.
 ## Project Status
 
 OfficePilot is a working local-first employee work report assistant powered by Tether QVAC.
+
+## QVAC Integration
+
+OfficePilot uses QVAC loadModel() to load the local AI model and completion() to generate employee work reports directly on-device.
