@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OfficePilot — Local AI</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="logo">◈ <span>OfficePilot</span></div>
+    <div class="local"><span></span> QVAC • ON DEVICE</div>
+    <nav>
+      <a class="active">Dashboard</a>
+      <a>Daily Reports</a>
+      <a>Team Updates</a>
+    </nav>
+    <div class="privacy">
+      <b>🔒 Private by design</b>
+      <p>AI processing happens on this computer through QVAC.</p>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <div>
+        <div class="eyebrow">EMPLOYEE WORKSPACE</div>
+        <h1>Daily Work Report</h1>
+        <p>Turn rough work notes into a structured professional update.</p>
+      </div>
+      <div class="avatar">MH</div>
+    </header>
+
+    <section class="grid">
+      <div class="panel form">
+        <div class="panel-title">Work Update <span>LOCAL AI</span></div>
+
+        <label>Employee Name
+          <input id="employee" value="Mehul Harkawat">
+        </label>
+
+        <label>Department
+          <select id="department">
+            <option>Technology</option>
+            <option>Human Resources</option>
+            <option>Sales</option>
+            <option>Marketing</option>
+            <option>Finance</option>
+            <option>Operations</option>
+          </select>
+        </label>
+
+        <label>What did you work on today?
+          <textarea id="work" placeholder="Example: Finished login module. Started dashboard testing. Database connection is failing and I need to discuss the API issue with Rahul tomorrow.">Finished login module. Started dashboard testing. Database connection is failing and I need to discuss the API issue with Rahul tomorrow.</textarea>
+        </label>
+
+        <button id="generate">✦ Generate Local AI Report</button>
+        <div id="status">First run downloads the QVAC model.</div>
+      </div>
+
+      <div class="panel preview">
+        <div class="panel-title">AI Report <span id="badge">WAITING</span></div>
+        <div id="result" class="empty">
+          <div class="empty-icon">✦</div>
+          <h2>Your report will appear here</h2>
+          <p>Enter your work update and let the local AI organize it.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+$("generate").onclick = async () => {
+  const btn = $("generate");
+  const status = $("status");
+  btn.disabled = true;
+  status.textContent = "Loading QVAC model / generating report locally…";
+  $("badge").textContent = "GENERATING";
+
+  try {
+    const r = await fetch("/api/report", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        employee: $("employee").value,
+        department: $("department").value,
+        work: $("work").value
+      })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Request failed");
+    render(data);
+    status.textContent = "✓ Report generated locally. No cloud AI API was used.";
+    $("badge").textContent = "LOCAL • QVAC";
+  } catch (e) {
+    status.textContent = "⚠ " + e.message;
+    $("badge").textContent = "ERROR";
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+function list(title, items, cls="") {
+  return `<div class="section"><h3>${title}</h3>${
+    items?.length
+      ? `<ul class="${cls}">${items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`
+      : `<p class="muted">None identified</p>`
+  }</div>`;
+}
+
+function render(d) {
+  $("result").className = "report";
+  $("result").innerHTML = `
+    <div class="summary">${esc(d.summary)}</div>
+    <div class="two">
+      ${list("✓ Completed", d.completed, "done")}
+      ${list("○ Pending", d.pending)}
+    </div>
+    <div class="priority">${list("🔥 Priorities", d.priorities)}</div>
+    ${list("⚠ Blockers", d.blockers)}
+    <div class="manager"><b>Manager note</b><p>${esc(d.managerNote)}</p></div>
+  `;
+}
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+</body>
+</html>

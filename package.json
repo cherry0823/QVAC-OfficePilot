@@ -1,0 +1,10 @@
+{
+  "name": "qvac-officepilot",
+  "version": "1.0.0",
+  "description": "OfficePilot - privacy-first local AI employee work report assistant powered by Tether QVAC.",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": { "start": "node server.mjs" },
+  "dependencies": { "@qvac/sdk": "0.20.0" },
+  "license": "Apache-2.0"
+}
